@@ -1,0 +1,13 @@
+# --- Laravel Specifics ---
+laravel-server/.env
+laravel-server/vendor/
+laravel-server/storage/*.key
+laravel-server/public/storage
+laravel-server/bootstrap/cache/*
+
+# --- Flutter Specifics ---
+edumaxsys/.dart_tool/
+edumaxsys/.packages
+edumaxsys/build/
+edumaxsys/ios/Flutter/Generated.xcconfig
+edumaxsys/android/local.properties
