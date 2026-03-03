@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/services/api_service.dart';
 import 'core/services/database_service.dart';
 import 'core/services/sync_service.dart';
 import 'presentation/providers/auth_provider.dart';
@@ -10,8 +11,8 @@ import 'presentation/screens/home/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize the local database
   await DatabaseService.instance.database;
+  await ApiService.instance.refreshBaseUrl();
   
   runApp(const ProviderScope(child: EduMaxApp()));
 }

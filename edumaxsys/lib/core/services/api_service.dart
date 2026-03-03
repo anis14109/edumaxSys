@@ -2,20 +2,17 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../core/constants/api_constants.dart';
 
-/// API Service
-/// 
-/// Handles all HTTP communication with the Laravel backend using Dio.
-/// Provides methods for authentication and user CRUD operations.
 class ApiService {
   static final ApiService instance = ApiService._();
   
   late final Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  String _baseUrl = ApiConstants.baseUrl;
 
   ApiService._() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: ApiConstants.baseUrl,
+        baseUrl: _baseUrl,
         connectTimeout: const Duration(milliseconds: ApiConstants.connectTimeout),
         receiveTimeout: const Duration(milliseconds: ApiConstants.receiveTimeout),
         headers: {
@@ -25,10 +22,12 @@ class ApiService {
       ),
     );
 
-    // Add interceptor to attach auth token
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          await _updateBaseUrl();
+          options.baseUrl = _baseUrl;
+          
           final token = await _storage.read(key: StorageKeys.authToken);
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
@@ -36,15 +35,26 @@ class ApiService {
           return handler.next(options);
         },
         onError: (error, handler) {
-          // Handle common errors
           if (error.response?.statusCode == 401) {
-            // Token expired or invalid - clear storage
             _storage.deleteAll();
           }
           return handler.next(error);
         },
       ),
     );
+  }
+
+  Future<void> _updateBaseUrl() async {
+    final customUrl = await _storage.read(key: StorageKeys.apiUrl);
+    if (customUrl != null && customUrl.isNotEmpty) {
+      _baseUrl = customUrl;
+    } else {
+      _baseUrl = ApiConstants.baseUrl;
+    }
+  }
+
+  Future<void> refreshBaseUrl() async {
+    await _updateBaseUrl();
   }
 
   // ==================== AUTHENTICATION ====================

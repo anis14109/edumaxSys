@@ -71,4 +71,5 @@ class StorageKeys {
   static const String userEmail = 'user_email';
   static const String userName = 'user_name';
   static const String lastSyncTime = 'last_sync_time';
+  static const String apiUrl = 'api_url';
 }
